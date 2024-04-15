@@ -3,8 +3,8 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
-    output:
-      ansi:
-        enabled: always
-    profiles:
-      default: dev
+  output:
+    ansi:
+      enabled: always
+  profiles:
+    default: dev
