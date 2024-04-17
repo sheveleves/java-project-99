@@ -45,6 +45,7 @@ public class UserControllerTest {
 
     @BeforeEach
     public void setUp() {
+        userRepository.deleteAll();
         testUser = Instancio.of(modelGenerator.getUserModel()).create();
         userRepository.save(testUser);
     }
@@ -111,5 +112,44 @@ public class UserControllerTest {
         mockMvc.perform(request)
                 .andExpect(status().isNoContent());
         assertThat(userRepository.existsById(testUser.getId())).isEqualTo(false);
+    }
+
+    @Test
+    public void testBadEmailRequestForCreateUser() throws Exception {
+        User data = Instancio.of(modelGenerator.getUserModel()).create();
+        data.setEmail("test");
+        MockHttpServletRequestBuilder request = post("/api/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(data));
+        MvcResult result = mockMvc.perform(request)
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        assertThat(result.getResponse().getContentAsString()).contains("Email must be in email format");
+    }
+
+    @Test
+    public void testBadPasswordRequestForCreateUser() throws Exception {
+        User data = Instancio.of(modelGenerator.getUserModel()).create();
+        data.setPassword("12");
+        MockHttpServletRequestBuilder request = post("/api/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(data));
+        MvcResult result = mockMvc.perform(request)
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        assertThat(result.getResponse().getContentAsString())
+                .contains("Password must contain at least three characters");
+    }
+
+    @Test
+    public void testNotFoundException() throws Exception {
+        User user = userRepository.findTopByOrderByIdDesc();
+        Long id = user.getId() + 1;
+        MockHttpServletRequestBuilder request = get("/api/users/{id}", id);
+        MvcResult result = mockMvc.perform(request)
+                .andExpect(status().isNotFound())
+                .andReturn();
+        assertThat(result.getResponse().getContentAsString())
+                .contains("User with ID = " + id + " not found.");
     }
 }
