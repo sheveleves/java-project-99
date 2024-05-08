@@ -6,6 +6,7 @@ import hexlet.code.dto.UserUpdateDTO;
 import hexlet.code.model.User;
 import org.mapstruct.BeforeMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
@@ -22,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public abstract class UserMapper {
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Mapping(target = "passwordDigest", source = "password")
     public abstract User map(UserCreateDTO userCreateDTO);
     public abstract UserDTO map(User user);
     public abstract void update(UserUpdateDTO userUpdateDTO, @MappingTarget User user);
@@ -30,7 +32,7 @@ public abstract class UserMapper {
     public void encryptPasswordUpdate(UserUpdateDTO update, @MappingTarget User user) {
         var password = update.getPassword();
         if (password != null && password.isPresent()) {
-            user.setPassword(passwordEncoder.encode(password.get()));
+            user.setPasswordDigest(passwordEncoder.encode(password.get()));
         }
     }
 
