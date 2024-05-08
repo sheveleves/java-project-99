@@ -24,7 +24,7 @@ public class DataInitializer implements ApplicationRunner {
         User user = new User();
         user.setEmail(email);
         String encodedPassword = passwordEncoder.encode("qwerty");
-        user.setPassword(encodedPassword);
+        user.setPasswordDigest(encodedPassword);
         userRepository.save(user);
 
 
@@ -34,7 +34,7 @@ public class DataInitializer implements ApplicationRunner {
             user.setFirstName(faker.name().firstName());
             user.setLastName(faker.name().lastName());
             encodedPassword = passwordEncoder.encode("12345");
-            user.setPassword(encodedPassword);
+            user.setPasswordDigest(encodedPassword);
             userRepository.save(user);
         }
     }
