@@ -130,7 +130,7 @@ public class UserControllerTest {
     @Test
     public void testBadPasswordRequestForCreateUser() throws Exception {
         User data = Instancio.of(modelGenerator.getUserModel()).create();
-        data.setPassword("12");
+        data.setPasswordDigest("12");
         MockHttpServletRequestBuilder request = post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(data));
