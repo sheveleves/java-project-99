@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -42,17 +44,20 @@ public class UserControllerTest {
     private UserMapper userMapper;
     @Autowired
     private ObjectMapper objectMapper;
+    private JwtRequestPostProcessor token;
 
     @BeforeEach
     public void setUp() {
         userRepository.deleteAll();
         testUser = Instancio.of(modelGenerator.getUserModel()).create();
+        token = jwt().jwt(builder -> builder.subject(testUser.getEmail()));
         userRepository.save(testUser);
     }
 
     @Test
     public void testShowAllUsers() throws Exception {
-        MockHttpServletRequestBuilder request = get("/api/users");
+        MockHttpServletRequestBuilder request = get("/api/users")
+                .with(token);
         MvcResult result = mockMvc.perform(request)
                 .andExpect(status().isOk())
                 .andReturn();
@@ -62,7 +67,8 @@ public class UserControllerTest {
 
     @Test
     public void testGetUserById() throws Exception {
-        MockHttpServletRequestBuilder request = get("/api/users/{id}", testUser.getId());
+        MockHttpServletRequestBuilder request = get("/api/users/{id}", testUser.getId())
+                .with(token);
         MvcResult result = mockMvc.perform(request)
                 .andExpect(status().isOk())
                 .andReturn();
@@ -78,6 +84,7 @@ public class UserControllerTest {
         long countBeforeCreateUser = userRepository.count();
         User data = Instancio.of(modelGenerator.getUserModel()).create();
         MockHttpServletRequestBuilder request = post("/api/users")
+                .with(token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(data));
         mockMvc.perform(request)
@@ -96,6 +103,7 @@ public class UserControllerTest {
         HashMap<String, String> data = new HashMap<>();
         data.put("firstName", "NewName");
         MockHttpServletRequestBuilder request = put("/api/users/{id}", testUser.getId())
+                .with(token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(data));
         mockMvc.perform(request)
@@ -108,7 +116,8 @@ public class UserControllerTest {
     @Test
     public void testDeleteUser() throws Exception {
         assertThat(userRepository.existsById(testUser.getId())).isEqualTo(true);
-        MockHttpServletRequestBuilder request = delete("/api/users/{id}", testUser.getId());
+        MockHttpServletRequestBuilder request = delete("/api/users/{id}", testUser.getId())
+                .with(token);
         mockMvc.perform(request)
                 .andExpect(status().isNoContent());
         assertThat(userRepository.existsById(testUser.getId())).isEqualTo(false);
@@ -119,6 +128,7 @@ public class UserControllerTest {
         User data = Instancio.of(modelGenerator.getUserModel()).create();
         data.setEmail("test");
         MockHttpServletRequestBuilder request = post("/api/users")
+                .with(token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(data));
         MvcResult result = mockMvc.perform(request)
@@ -132,6 +142,7 @@ public class UserControllerTest {
         User data = Instancio.of(modelGenerator.getUserModel()).create();
         data.setPasswordDigest("12");
         MockHttpServletRequestBuilder request = post("/api/users")
+                .with(token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(data));
         MvcResult result = mockMvc.perform(request)
@@ -145,7 +156,8 @@ public class UserControllerTest {
     public void testNotFoundException() throws Exception {
         User user = userRepository.findTopByOrderByIdDesc();
         Long id = user.getId() + 1;
-        MockHttpServletRequestBuilder request = get("/api/users/{id}", id);
+        MockHttpServletRequestBuilder request = get("/api/users/{id}", id)
+                .with(token);
         MvcResult result = mockMvc.perform(request)
                 .andExpect(status().isNotFound())
                 .andReturn();
