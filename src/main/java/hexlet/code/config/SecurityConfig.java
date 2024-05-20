@@ -43,6 +43,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(h -> {
                             h.requestMatchers("/welcome").permitAll();
                             h.requestMatchers("/api/login").permitAll();
+                            h.requestMatchers("/", "/index.html", "/assets/**").permitAll();
 //                            h.requestMatchers("/**").permitAll();
                             h.anyRequest().authenticated();
                         }
