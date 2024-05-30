@@ -51,7 +51,7 @@ public class UsersController {
 
     @PutMapping(path = "/{id}")
     @PreAuthorize("@userUtils.isUserTheSameFromAuthentication(#id)")
-    public UserDTO updateUser(@RequestBody UserUpdateDTO userUpdateDTO, @PathVariable long id) {
+    public UserDTO updateUser(@Valid @RequestBody UserUpdateDTO userUpdateDTO, @PathVariable long id) {
         return userService.updateUser(userUpdateDTO, id);
     }
 
