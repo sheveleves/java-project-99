@@ -3,10 +3,13 @@ package hexlet.code.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hexlet.code.dto.TaskDTO;
+import hexlet.code.mappers.TaskMapper;
 import hexlet.code.mappers.TaskStatusMapper;
 import hexlet.code.model.Task;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.model.User;
+import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.repository.UserRepository;
 import hexlet.code.util.ModelGenerator;
@@ -17,7 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
+ .JwtRequestPostProcessor;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -139,7 +143,7 @@ public class TaskControllerTest {
 
         String content = result.getResponse().getContentAsString();
 
-        Map<String, String> map = objectMapper.readValue(content, new TypeReference<Map<String, String>>() {});
+        Map<String, String> map = objectMapper.readValue(content, new TypeReference<Map<String, String>>() { });
 
         String id = map.get("id");
         Task task = taskRepository.findById(Long.valueOf(id)).get();
