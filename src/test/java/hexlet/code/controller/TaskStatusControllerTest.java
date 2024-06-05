@@ -44,7 +44,6 @@ public class TaskStatusControllerTest {
 
     @BeforeEach
     public void setup() {
-        taskStatusRepository.deleteAll();
         testTaskStatus = Instancio.of(modelGenerator.getTaskStatus()).create();
         token = jwt().jwt(builder -> builder.subject("hexlet@example.com"));
         taskStatusRepository.save(testTaskStatus);
