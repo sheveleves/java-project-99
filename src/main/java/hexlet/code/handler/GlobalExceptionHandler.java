@@ -1,6 +1,8 @@
 package hexlet.code.handler;
 
 import hexlet.code.exception.ResourceNotFoundException;
+import hexlet.code.exception.TaskStatusDeletingException;
+import hexlet.code.exception.UserDeletingException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -41,5 +43,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         Map<String, List<String>> errorResponse = new HashMap<>();
         errorResponse.put("errors", errors);
         return errorResponse;
+    }
+
+    @ExceptionHandler(UserDeletingException.class)
+    public ResponseEntity<String> handleResourceNotFoundException(UserDeletingException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(TaskStatusDeletingException.class)
+    public ResponseEntity<String> handleResourceNotFoundException(TaskStatusDeletingException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 }

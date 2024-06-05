@@ -19,17 +19,21 @@ public class TaskStatusService {
     @Autowired
     private TaskStatusMapper taskStatusMapper;
 
-    public List<TaskStatusDTO> getAllTaskStatus() {
+    public List<TaskStatusDTO> getAllTaskStatuses() {
         List<TaskStatus> taskStatuses = taskStatusRepository.findAll();
         return taskStatuses.stream()
                 .map(taskStatusMapper::map)
                 .toList();
     }
 
-    public TaskStatusDTO getTaskStatusById(Long id) {
-        TaskStatus taskStatus = taskStatusRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Task status with ID = " + id + " not found."));
+    public TaskStatusDTO getTaskStatusDTOById(Long id) {
+        TaskStatus taskStatus = getTaskStatusById(id);
         return taskStatusMapper.map(taskStatus);
+    }
+
+    public TaskStatus getTaskStatusById(Long id) {
+        return taskStatusRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task status with ID = " + id + " not found."));
     }
 
     public TaskStatusDTO createTaskStatus(TaskStatusCreateDTO taskStatusCreateDTO) {

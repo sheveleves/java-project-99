@@ -3,6 +3,9 @@ package hexlet.code.controller;
 import hexlet.code.dto.TaskStatusCreateDTO;
 import hexlet.code.dto.TaskStatusDTO;
 import hexlet.code.dto.TaskStatusUpdateDTO;
+import hexlet.code.exception.TaskStatusDeletingException;
+import hexlet.code.model.Task;
+import hexlet.code.model.TaskStatus;
 import hexlet.code.service.TaskStatusService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -28,7 +31,7 @@ public class TaskStatusController {
 
     @GetMapping(path = "")
     public ResponseEntity<List<TaskStatusDTO>> showAllUsers() {
-        List<TaskStatusDTO> taskStatuses = taskStatusService.getAllTaskStatus();
+        List<TaskStatusDTO> taskStatuses = taskStatusService.getAllTaskStatuses();
         return ResponseEntity.ok()
                 .header("X-Total-Count", String.valueOf(taskStatuses.size()))
                 .body(taskStatuses);
@@ -36,7 +39,7 @@ public class TaskStatusController {
 
     @GetMapping(path = "/{id}")
     TaskStatusDTO getTaskStatusById(@PathVariable Long id) {
-        return taskStatusService.getTaskStatusById(id);
+        return taskStatusService.getTaskStatusDTOById(id);
     }
 
     @PostMapping(path = "")
@@ -54,6 +57,12 @@ public class TaskStatusController {
     @DeleteMapping(path = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTaskStatus(@PathVariable Long id) {
+        TaskStatus taskStatus = taskStatusService.getTaskStatusById(id);
+        List<Task> tasks = taskStatus.getTasks();
+        if (!tasks.isEmpty()) {
+            throw new TaskStatusDeletingException(String.format("Can't delete the status with "
+                    + "ID = %d because this status is used in the task(s)!", id));
+        }
         taskStatusService.deleteTaskStatus(id);
     }
 }
