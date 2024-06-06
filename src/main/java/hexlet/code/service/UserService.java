@@ -26,9 +26,8 @@ public class UserService {
                 .toList();
     }
 
-    public UserDTO getUserById(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User with ID = " + id + " not found."));
+    public UserDTO getUserDTOById(Long id) {
+        User user = getUserById(id);
         return userMapper.map(user);
     }
 
@@ -48,5 +47,10 @@ public class UserService {
 
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
+    }
+
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User with ID = " + id + " not found."));
     }
 }

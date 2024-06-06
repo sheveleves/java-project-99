@@ -4,6 +4,9 @@ package hexlet.code.controller;
 import hexlet.code.dto.UserCreateDTO;
 import hexlet.code.dto.UserDTO;
 import hexlet.code.dto.UserUpdateDTO;
+import hexlet.code.exception.UserDeletingException;
+import hexlet.code.model.Task;
+import hexlet.code.model.User;
 import hexlet.code.service.UserService;
 import hexlet.code.utils.UserUtils;
 import jakarta.validation.Valid;
@@ -40,7 +43,7 @@ public class UsersController {
 
     @GetMapping(path = "/{id}")
     public UserDTO getUserById(@PathVariable long id) {
-        return userService.getUserById(id);
+        return userService.getUserDTOById(id);
     }
 
     @PostMapping(path = "")
@@ -59,6 +62,12 @@ public class UsersController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("@userUtils.isUserTheSameFromAuthentication(#id)")
     public void deleteUser(@PathVariable Long id) {
+        User user = userService.getUserById(id);
+        List<Task> tasks = user.getTasks();
+        if (!tasks.isEmpty()) {
+            throw new UserDeletingException(String.format("Can't delete the user with "
+                    + "ID = %d because user has the task(s)!", id));
+        }
         userService.deleteUser(id);
     }
 }
