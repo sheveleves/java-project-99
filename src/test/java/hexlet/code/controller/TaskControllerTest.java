@@ -143,9 +143,9 @@ public class TaskControllerTest {
 
         String content = result.getResponse().getContentAsString();
 
-        Map<String, String> map = objectMapper.readValue(content, new TypeReference<Map<String, String>>() { });
+        Map<String, Object> map = objectMapper.readValue(content, new TypeReference<Map<String, Object>>() { });
 
-        String id = map.get("id");
+        String id = String.valueOf(map.get("id"));
         Task task = taskRepository.findById(Long.valueOf(id)).get();
 
         assertNotNull(task);
