@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Set;
+
 @Getter
 @Setter
 public class TaskCreateDTO {
@@ -15,4 +17,5 @@ public class TaskCreateDTO {
     @NotNull(message = "TaskStatus of task must not be null")
     private String status;
     private Long assigneeId;
+    private Set<Long> labelsIds;
 }

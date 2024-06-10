@@ -5,18 +5,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
-import java.util.Set;
 
 @Getter
 @Setter
-public class TaskDTO {
+public class LabelDTO {
     private Long id;
-    private int index;
-    private String title;
-    private String content;
-    private String status;
-    private Long assigneeId;
-    private Set<Long> labelIds;
+    private String name;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "UTC+6")
     private Instant createdAt;
 }
