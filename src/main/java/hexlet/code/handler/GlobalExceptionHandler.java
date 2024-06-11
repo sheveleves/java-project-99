@@ -1,5 +1,7 @@
 package hexlet.code.handler;
 
+import hexlet.code.exception.LabelDeletingException;
+import hexlet.code.exception.NullTaskStatusException;
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.exception.TaskStatusDeletingException;
 import hexlet.code.exception.UserDeletingException;
@@ -52,6 +54,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(TaskStatusDeletingException.class)
     public ResponseEntity<String> handleResourceNotFoundException(TaskStatusDeletingException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(LabelDeletingException.class)
+    public ResponseEntity<String> handleResourceNotFoundException(LabelDeletingException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(NullTaskStatusException.class)
+    public ResponseEntity<String> handleResourceNotFoundException(NullTaskStatusException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 }
