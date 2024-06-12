@@ -1,7 +1,9 @@
 package hexlet.code.component;
 
+import hexlet.code.model.Label;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.model.User;
+import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.repository.UserRepository;
 import net.datafaker.Faker;
@@ -11,6 +13,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -21,7 +24,8 @@ public class DataInitializer implements ApplicationRunner {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private TaskStatusRepository taskStatusRepository;
-
+    @Autowired
+    private LabelRepository labelRepository;
     @Autowired
     private Faker faker;
 
@@ -48,6 +52,12 @@ public class DataInitializer implements ApplicationRunner {
             if (taskStatusRepository.findBySlug(slug).isEmpty()) {
                 TaskStatus taskStatus = new TaskStatus(name, slug);
                 taskStatusRepository.save(taskStatus);
+            }
+        });
+
+        List.of("feature", "bug").stream().forEach((name) -> {
+            if (labelRepository.findByName(name).isEmpty()) {
+                labelRepository.save(new Label(name));
             }
         });
 
