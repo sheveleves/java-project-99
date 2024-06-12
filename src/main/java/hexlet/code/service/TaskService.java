@@ -35,7 +35,6 @@ public class TaskService {
     public TaskDTO createTask(TaskCreateDTO taskCreateDTO) {
         Task task = taskMapper.map(taskCreateDTO);
         taskRepository.save(task);
-        taskMapper.map(task);
         return taskMapper.map(task);
     }
 
