@@ -7,6 +7,7 @@ import hexlet.code.exception.LabelDeletingException;
 import hexlet.code.model.Label;
 import hexlet.code.model.Task;
 import hexlet.code.service.LabelService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,7 @@ import java.util.Set;
 @RestController
 @RequestMapping("/api/labels")
 @AllArgsConstructor
+@Tag(name = "Label management")
 public class LabelController {
     private final LabelService labelService;
 
