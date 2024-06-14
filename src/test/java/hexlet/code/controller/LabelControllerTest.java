@@ -2,7 +2,7 @@ package hexlet.code.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hexlet.code.dto.LabelDTO;
+import hexlet.code.dto.LabelCreateDTO;
 import hexlet.code.mappers.LabelMapper;
 import hexlet.code.model.Label;
 import hexlet.code.model.Task;
@@ -105,13 +105,12 @@ public class LabelControllerTest {
     @Test
     public void testCreateLabel() throws Exception {
         long countBeforeCreateLabel = labelRepository.count();
-        Label datalabel = Instancio.of(modelGenerator.getLabel()).create();
-        LabelDTO dataLabelDTO = labelMapper.map(datalabel);
-
+        LabelCreateDTO labelCreateDTO = new LabelCreateDTO();
+        labelCreateDTO.setName("testLabel");
         MockHttpServletRequestBuilder request = post("/api/labels")
                 .with(token)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dataLabelDTO));
+                .content(objectMapper.writeValueAsString(labelCreateDTO));
         MvcResult result = mockMvc.perform(request)
                 .andExpect(status().isCreated()).andReturn();
         long countAfterCreateTask = labelRepository.count();
@@ -119,12 +118,12 @@ public class LabelControllerTest {
 
         String content = result.getResponse().getContentAsString();
         assertThatJson(content).and(
-                jsonAssert -> jsonAssert.node("name").isEqualTo(dataLabelDTO.getName()));
+                jsonAssert -> jsonAssert.node("name").isEqualTo(labelCreateDTO.getName()));
 
-        Label label = labelRepository.findByName(dataLabelDTO.getName()).get();
+        Label label = labelRepository.findByName(labelCreateDTO.getName()).get();
 
         assertNotNull(label);
-        assertThat(label.getName()).isEqualTo(dataLabelDTO.getName());
+        assertThat(label.getName()).isEqualTo(labelCreateDTO.getName());
     }
 
     @Test

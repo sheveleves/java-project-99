@@ -1,6 +1,7 @@
 package hexlet.code.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hexlet.code.dto.TaskStatusCreateDTO;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.util.ModelGenerator;
@@ -76,29 +77,31 @@ public class TaskStatusControllerTest {
     @Test
     public void testCreateTaskStatus() throws Exception {
         long countBeforeCreateUser = taskStatusRepository.count();
-        TaskStatus data = Instancio.of(modelGenerator.getTaskStatus()).create();
+        TaskStatusCreateDTO taskStatusCreateDTO = new TaskStatusCreateDTO();
+        taskStatusCreateDTO.setName("testTaskStatus");
+        taskStatusCreateDTO.setSlug("testSlug");
         MockHttpServletRequestBuilder request = post("/api/task_statuses")
                 .with(token)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(data));
+                .content(objectMapper.writeValueAsString(taskStatusCreateDTO));
         mockMvc.perform(request)
                 .andExpect(status().isCreated());
         long countAfterCreateUser = taskStatusRepository.count();
         assertThat(countAfterCreateUser - countBeforeCreateUser).isEqualTo(1);
-        TaskStatus taskStatus = taskStatusRepository.findBySlug(data.getSlug()).get();
+        TaskStatus taskStatus = taskStatusRepository.findBySlug(taskStatusCreateDTO.getSlug()).get();
         assertNotNull(taskStatus);
-        assertThat(taskStatus.getName()).isEqualTo(data.getName());
-        assertThat(taskStatus.getSlug()).isEqualTo(data.getSlug());
+        assertThat(taskStatus.getName()).isEqualTo(taskStatusCreateDTO.getName());
+        assertThat(taskStatus.getSlug()).isEqualTo(taskStatusCreateDTO.getSlug());
     }
 
     @Test
     public void testBadNmeRequestForCreateTaskStatus() throws Exception {
-        TaskStatus data = Instancio.of(modelGenerator.getTaskStatus()).create();
-        data.setName("");
+        TaskStatusCreateDTO taskStatusCreateDTO = new TaskStatusCreateDTO();
+        taskStatusCreateDTO.setName("");
         MockHttpServletRequestBuilder request = post("/api/task_statuses")
                 .with(token)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(data));
+                .content(objectMapper.writeValueAsString(taskStatusCreateDTO));
         MvcResult result = mockMvc.perform(request)
                 .andExpect(status().isBadRequest())
                 .andReturn();

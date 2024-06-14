@@ -3,16 +3,19 @@ package hexlet.code.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hexlet.code.dto.TaskDTO;
+import hexlet.code.dto.TaskCreateDTO;
 import hexlet.code.mappers.TaskMapper;
 import hexlet.code.mappers.TaskStatusMapper;
+import hexlet.code.model.Label;
 import hexlet.code.model.Task;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.model.User;
+import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.repository.UserRepository;
 import hexlet.code.util.ModelGenerator;
+import jakarta.transaction.Transactional;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +31,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,17 +58,18 @@ public class TaskControllerTest {
     private TaskRepository taskRepository;
     @Autowired
     private TaskStatusMapper taskStatusMapper;
-
     @Autowired
     private TaskMapper taskMapper;
-
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private LabelRepository labelRepository;
 
     private JwtRequestPostProcessor token;
     private User testUser;
     private TaskStatus testTaskStatus;
     private Task testTask;
+    private Label testLabel;
 
     @BeforeEach
     public void setUp() throws JsonProcessingException {
@@ -75,8 +80,13 @@ public class TaskControllerTest {
         testTaskStatus = Instancio.of(modelGenerator.getTaskStatus()).create();
         taskStatusRepository.save(testTaskStatus);
 
+        testLabel = Instancio.of(modelGenerator.getLabel()).create();
+        labelRepository.save(testLabel);
+
         testTask = Instancio.of(modelGenerator.getTask()).create();
         testTask.setTaskStatus(testTaskStatus);
+        testTask.setLabels(Set.of(testLabel));
+        testTask.setAssignee(testUser);
         taskRepository.save(testTask);
     }
 
@@ -110,32 +120,42 @@ public class TaskControllerTest {
     @Test()
     public void testCreateWrongTaskWithoutTaskStatus() throws Exception {
         long countBeforeCreateTask = taskRepository.count();
-        Task dataTask = Instancio.of(modelGenerator.getTask()).create();
-        TaskDTO dataTaskDTO = taskMapper.map(dataTask);
+        TaskCreateDTO taskCreateDTO = new TaskCreateDTO();
+        taskCreateDTO.setTitle("withoutTaskStatus");
+        taskCreateDTO.setIndex(555);
+        taskCreateDTO.setContent("This task doesn't have task status");
         MockHttpServletRequestBuilder request = post("/api/tasks")
-                .with(token);
-        mockMvc.perform(request)
-                .andExpect(status().isBadRequest());
+                .with(token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(taskCreateDTO));
+        MvcResult result = mockMvc.perform(request)
+                .andExpect(status().isBadRequest()).andReturn();
         long countAfterCreateTask = taskRepository.count();
         assertThat(countAfterCreateTask - countBeforeCreateTask).isEqualTo(0);
+        assertThat(result.getResponse().getContentAsString())
+                .contains("TaskStatus of task must not be null");
     }
 
 
     @Test
+    @Transactional
     public void testCreateTask() throws Exception {
         long countBeforeCreateTask = taskRepository.count();
-        Task dataTask = Instancio.of(modelGenerator.getTask()).create();
-        TaskDTO dataTaskDTO = taskMapper.map(dataTask);
+        Label dataLabel = Instancio.of(modelGenerator.getLabel()).create();
+        labelRepository.save(dataLabel);
 
-        TaskStatus dataTaskStatus = Instancio.of(modelGenerator.getTaskStatus()).create();
-        taskStatusRepository.save(dataTaskStatus);
-
-        dataTaskDTO.setStatus(dataTaskStatus.getSlug());
+        TaskCreateDTO taskCreateDTO = new TaskCreateDTO();
+        taskCreateDTO.setTitle("testTitle");
+        taskCreateDTO.setIndex(555);
+        taskCreateDTO.setContent("testContent");
+        taskCreateDTO.setStatus(testTaskStatus.getSlug());
+        taskCreateDTO.setAssigneeId(testUser.getId());
+        taskCreateDTO.setLabelsIds(Set.of(dataLabel.getId()));
 
         MockHttpServletRequestBuilder request = post("/api/tasks")
                 .with(token)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dataTaskDTO));
+                .content(objectMapper.writeValueAsString(taskCreateDTO));
         MvcResult result = mockMvc.perform(request)
                 .andExpect(status().isCreated()).andReturn();
         long countAfterCreateTask = taskRepository.count();
@@ -149,27 +169,38 @@ public class TaskControllerTest {
         Task task = taskRepository.findById(Long.valueOf(id)).get();
 
         assertNotNull(task);
-        assertThat(task.getName()).isEqualTo(dataTask.getName());
-        assertThat(task.getDescription()).isEqualTo(dataTask.getDescription());
+        assertThat(task.getName()).isEqualTo(taskCreateDTO.getTitle());
+        assertThat(task.getDescription()).isEqualTo(taskCreateDTO.getContent());
+        assertThat(task.getLabels()).isEqualTo(Set.of(dataLabel));
+        assertThat(task.getAssignee()).isEqualTo(testUser);
     }
 
 
     @Test
     public void testUpdateTask() throws Exception {
         String oldName = testTask.getName();
-        HashMap<String, String> data = new HashMap<>();
+        Task task = taskRepository.findTaskWithLabels(testTask.getId());
+        Set<Label> oldLabels = task.getLabels();
+        Label label = (Label) oldLabels.toArray()[0];
+        Label newLabel = new Label();
+        newLabel.setName(label.getName() + "newLabelName");
+        labelRepository.save(newLabel);
+        Set<Long> newSetLabels = Set.of(label.getId(), newLabel.getId());
+        HashMap<String, Object> data = new HashMap<>();
         data.put("index", "555");
         data.put("content", "NewDescription");
+        data.put("labelIds", newSetLabels);
         MockHttpServletRequestBuilder request = put("/api/tasks/{id}", testTask.getId())
                 .with(token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(data));
         mockMvc.perform(request)
                 .andExpect(status().isOk());
-        testTask = taskRepository.findById(testTask.getId()).get();
+        testTask = taskRepository.findTaskWithLabels(testTask.getId());
         assertThat(testTask.getName()).isEqualTo(oldName);
         assertThat(testTask.getDescription()).isEqualTo("NewDescription");
         assertThat(testTask.getIndex()).isEqualTo(555);
+        assertThat(testTask.getLabels().containsAll(Set.of(label, newLabel))).isEqualTo(true);
     }
 
     @Test

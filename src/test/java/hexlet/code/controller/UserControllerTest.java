@@ -1,6 +1,7 @@
 package hexlet.code.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hexlet.code.dto.UserCreateDTO;
 import hexlet.code.mappers.UserMapper;
 import hexlet.code.model.User;
 import hexlet.code.repository.UserRepository;
@@ -81,19 +82,23 @@ public class UserControllerTest {
     @Test
     public void testCreateUser() throws Exception {
         long countBeforeCreateUser = userRepository.count();
-        User data = Instancio.of(modelGenerator.getUserModel()).create();
+        UserCreateDTO userCreateDTO = new UserCreateDTO();
+        userCreateDTO.setEmail("test@email.com");
+        userCreateDTO.setPassword("testPassword");
+        userCreateDTO.setFirstName("testFirstName");
+        userCreateDTO.setLastName("testLastName");
         MockHttpServletRequestBuilder request = post("/api/users")
                 .with(token)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(data));
+                .content(objectMapper.writeValueAsString(userCreateDTO));
         mockMvc.perform(request)
                 .andExpect(status().isCreated());
         long countAfterCreateUser = userRepository.count();
         assertThat(countAfterCreateUser - countBeforeCreateUser).isEqualTo(1);
-        User user = userRepository.findByEmail(data.getEmail()).get();
+        User user = userRepository.findByEmail(userCreateDTO.getEmail()).get();
         assertNotNull(user);
-        assertThat(user.getFirstName()).isEqualTo(data.getFirstName());
-        assertThat(user.getLastName()).isEqualTo(data.getLastName());
+        assertThat(user.getFirstName()).isEqualTo(userCreateDTO.getFirstName());
+        assertThat(user.getLastName()).isEqualTo(userCreateDTO.getLastName());
     }
 
     @Test
@@ -124,29 +129,37 @@ public class UserControllerTest {
 
     @Test
     public void testBadEmailRequestForCreateUser() throws Exception {
-        User data = Instancio.of(modelGenerator.getUserModel()).create();
-        data.setEmail("test");
+        long countBeforeCreateUser = userRepository.count();
+        UserCreateDTO userCreateDTO = new UserCreateDTO();
+        userCreateDTO.setEmail("test");
+        userCreateDTO.setPassword("testPassword");
         MockHttpServletRequestBuilder request = post("/api/users")
                 .with(token)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(data));
+                .content(objectMapper.writeValueAsString(userCreateDTO));
         MvcResult result = mockMvc.perform(request)
                 .andExpect(status().isBadRequest())
                 .andReturn();
+        long countAfterCreateUser = userRepository.count();
+        assertThat(countAfterCreateUser - countBeforeCreateUser).isEqualTo(0);
         assertThat(result.getResponse().getContentAsString()).contains("Email must be in email format");
     }
 
     @Test
     public void testBadPasswordRequestForCreateUser() throws Exception {
-        User data = Instancio.of(modelGenerator.getUserModel()).create();
-        data.setPasswordDigest("12");
+        long countBeforeCreateUser = userRepository.count();
+        UserCreateDTO userCreateDTO = new UserCreateDTO();
+        userCreateDTO.setEmail("badPassword@gmail.com");
+        userCreateDTO.setPassword("12");
         MockHttpServletRequestBuilder request = post("/api/users")
                 .with(token)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(data));
+                .content(objectMapper.writeValueAsString(userCreateDTO));
         MvcResult result = mockMvc.perform(request)
                 .andExpect(status().isBadRequest())
                 .andReturn();
+        long countAfterCreateUser = userRepository.count();
+        assertThat(countAfterCreateUser - countBeforeCreateUser).isEqualTo(0);
         assertThat(result.getResponse().getContentAsString())
                 .contains("Password must contain at least three characters");
     }
