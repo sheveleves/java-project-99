@@ -16,6 +16,6 @@ public class TaskCreateDTO {
     private String content;
     @NotNull(message = "TaskStatus of task must not be null")
     private String status;
-    private Long assigneeId;
-    private Set<Long> labelsIds;
+    private Long assignee_id;
+    private Set<Long> taskLabelIds;
 }

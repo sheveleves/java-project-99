@@ -52,11 +52,11 @@ public abstract class ReferenceMapper {
     }
 
     @Named("labelsIdToLabels")
-    public Set<Label> labelsIdToLabels(Set<Long> labelsIds) {
-        if (labelsIds == null) {
+    public Set<Label> labelsIdToLabels(Set<Long> taskLabelIds) {
+        if (taskLabelIds == null) {
             return null;
         }
-        return labelsIds.stream()
+        return taskLabelIds.stream()
                 .map(id -> labelRepository.findById(id)
                         .orElseThrow(() -> new ResourceNotFoundException("Label with Id = " + id + " not found.")))
                 .collect(Collectors.toSet());

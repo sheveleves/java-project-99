@@ -149,8 +149,8 @@ public class TaskControllerTest {
         taskCreateDTO.setIndex(555);
         taskCreateDTO.setContent("testContent");
         taskCreateDTO.setStatus(testTaskStatus.getSlug());
-        taskCreateDTO.setAssigneeId(testUser.getId());
-        taskCreateDTO.setLabelsIds(Set.of(dataLabel.getId()));
+        taskCreateDTO.setAssignee_id(testUser.getId());
+        taskCreateDTO.setTaskLabelIds(Set.of(dataLabel.getId()));
 
         MockHttpServletRequestBuilder request = post("/api/tasks")
                 .with(token)
@@ -189,7 +189,7 @@ public class TaskControllerTest {
         HashMap<String, Object> data = new HashMap<>();
         data.put("index", "555");
         data.put("content", "NewDescription");
-        data.put("labelIds", newSetLabels);
+        data.put("taskLabelIds", newSetLabels);
         MockHttpServletRequestBuilder request = put("/api/tasks/{id}", testTask.getId())
                 .with(token)
                 .contentType(MediaType.APPLICATION_JSON)
