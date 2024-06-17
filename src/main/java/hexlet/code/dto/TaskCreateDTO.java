@@ -1,5 +1,6 @@
 package hexlet.code.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -16,6 +17,7 @@ public class TaskCreateDTO {
     private String content;
     @NotNull(message = "TaskStatus of task must not be null")
     private String status;
-    private Long assignee_id;
+    @JsonProperty("assignee_id")
+    private Long assigneeId;
     private Set<Long> taskLabelIds;
 }

@@ -2,6 +2,7 @@ package hexlet.code.controller;
 
 import hexlet.code.dto.TaskCreateDTO;
 import hexlet.code.dto.TaskDTO;
+import hexlet.code.dto.TaskParamDTO;
 import hexlet.code.dto.TaskUpdateDTO;
 import hexlet.code.service.TaskService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,8 +30,8 @@ public class TaskController {
     private final TaskService taskService;
 
     @GetMapping(path = "")
-    public ResponseEntity<List<TaskDTO>> index() {
-        var taskStatuses = taskService.getAllTasks();
+    public ResponseEntity<List<TaskDTO>> index(TaskParamDTO taskParamDTO) {
+        List<TaskDTO> taskStatuses = taskService.getAllTasks(taskParamDTO);
         return ResponseEntity.ok()
                 .header("X-Total-Count", String.valueOf(taskStatuses.size()))
                 .body(taskStatuses);

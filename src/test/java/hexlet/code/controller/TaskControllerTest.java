@@ -149,7 +149,7 @@ public class TaskControllerTest {
         taskCreateDTO.setIndex(555);
         taskCreateDTO.setContent("testContent");
         taskCreateDTO.setStatus(testTaskStatus.getSlug());
-        taskCreateDTO.setAssignee_id(testUser.getId());
+        taskCreateDTO.setAssigneeId(testUser.getId());
         taskCreateDTO.setTaskLabelIds(Set.of(dataLabel.getId()));
 
         MockHttpServletRequestBuilder request = post("/api/tasks")
