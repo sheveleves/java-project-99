@@ -30,6 +30,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -224,5 +225,84 @@ public class TaskControllerTest {
                 .andReturn();
         assertThat(result.getResponse().getContentAsString())
                 .contains("Task with ID = " + id + " not found.");
+    }
+
+    @Test
+    public void testTaskFilter() throws Exception {
+        TaskStatus taskStatus = Instancio.of(modelGenerator.getTaskStatus()).create();
+        taskStatusRepository.save(taskStatus);
+
+        Task task = Instancio.of(modelGenerator.getTask()).create();
+        task.setTaskStatus(taskStatus);
+        task.setLabels(Set.of(testLabel));
+        taskRepository.save(task);
+
+        MockHttpServletRequestBuilder request = get("/api/tasks")
+                .with(token);
+        MvcResult result = mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andReturn();
+        String content = result.getResponse().getContentAsString();
+
+        assertThatJson(content)
+                .inPath("$[*].title")
+                .isArray()
+                .contains(task.getName(), testTask.getName());
+
+        assertThatJson(content)
+                .inPath("$[*].assignee_id")
+                .isArray()
+                .contains(testUser.getId());
+
+        assertThatJson(content)
+                .inPath("$[*].status")
+                .isArray()
+                .contains(testTaskStatus.getSlug(), taskStatus.getSlug());
+
+        assertThatJson(content)
+                .inPath("$[*].taskLabelIds")
+                .isArray()
+                .contains(List.of(testLabel.getId()));
+
+        request = get("/api/tasks?"
+                + "labelId=" + testLabel.getId())
+                .with(token);
+        result = mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andReturn();
+        content = result.getResponse().getContentAsString();
+
+        assertThatJson(content)
+                .inPath("$[*].taskLabelIds")
+                .isArray()
+                .containsOnly(List.of(testLabel.getId()));
+
+        request = get("/api/tasks?"
+                + "labelId=" + testLabel.getId()
+                + "&assigneeId=" + testUser.getId())
+                .with(token);
+        result = mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andReturn();
+        content = result.getResponse().getContentAsString();
+
+        assertThatJson(content)
+                .inPath("$[*].assignee_id")
+                .isArray()
+                .containsOnly(testUser.getId());
+
+        request = get("/api/tasks?"
+                + "labelId=" + testLabel.getId()
+                + "&status=" + taskStatus.getSlug())
+                .with(token);
+        result = mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andReturn();
+        content = result.getResponse().getContentAsString();
+
+        assertThatJson(content)
+                .inPath("$[*].status")
+                .isArray()
+                .containsOnly(taskStatus.getSlug());
     }
 }
