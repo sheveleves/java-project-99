@@ -60,15 +60,5 @@ public class DataInitializer implements ApplicationRunner {
                 labelRepository.save(new Label(name));
             }
         });
-
-        for (int i = 0; i++ < 10;) {
-            user = new User();
-            user.setEmail(faker.internet().emailAddress());
-            user.setFirstName(faker.name().firstName());
-            user.setLastName(faker.name().lastName());
-            encodedPassword = passwordEncoder.encode("12345");
-            user.setPasswordDigest(encodedPassword);
-            userRepository.save(user);
-        }
     }
 }

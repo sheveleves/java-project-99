@@ -5,6 +5,7 @@ plugins {
 	id("org.springframework.boot") version "3.2.2"
 	id("io.spring.dependency-management") version "1.1.4"
 	id("io.freefair.lombok") version "8.6"
+	id("io.sentry.jvm.gradle") version "4.8.0"
 }
 
 group = "hexlet.code"
@@ -25,6 +26,7 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	runtimeOnly("com.h2database:h2")
+	runtimeOnly("org.postgresql:postgresql")
 
 	implementation("net.datafaker:datafaker:2.0.1")
 	implementation("org.instancio:instancio-junit:3.3.1")
