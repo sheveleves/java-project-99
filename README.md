@@ -6,8 +6,8 @@ and specification of task statuses. Task filtering is implemented. The program i
 Spring framework.*\
 <a href="https://java-project-99-production-5d2d.up.railway.app/"><u><b>Project is available online</b></a>\
 *To log in, you will need the following credentials:*
-* **login:** hexlet@example.com
-* **password:** qwerty
+* **login:** ```hexlet@example.com```
+* **password:** ```qwerty```
 
 ![It's how app looks](https://github.com/sheveleves/project5-test/blob/main/img/screen.png)
 #### Hexlet tests and linter status:
