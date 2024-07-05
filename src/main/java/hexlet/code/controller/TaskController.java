@@ -7,7 +7,7 @@ import hexlet.code.dto.TaskUpdateDTO;
 import hexlet.code.service.TaskService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,7 +24,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/tasks")
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Tag(name = "Task management")
 public class TaskController {
     private final TaskService taskService;

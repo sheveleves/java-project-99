@@ -1,6 +1,6 @@
 package hexlet.code.utils;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
@@ -10,9 +10,9 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class JWTUtils {
-    private JwtEncoder jwtEncoder;
+    private final JwtEncoder jwtEncoder;
 
     //it's unusual
     public String generateToken(String email) {

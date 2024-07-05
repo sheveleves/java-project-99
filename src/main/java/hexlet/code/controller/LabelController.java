@@ -9,7 +9,7 @@ import hexlet.code.model.Task;
 import hexlet.code.service.LabelService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,7 +27,7 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/api/labels")
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Tag(name = "Label management")
 public class LabelController {
     private final LabelService labelService;

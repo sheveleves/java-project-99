@@ -9,7 +9,7 @@ import hexlet.code.model.TaskStatus;
 import hexlet.code.service.TaskStatusService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,7 +26,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/task_statuses")
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Tag(name = "Task Status management")
 public class TaskStatusController {
     private final TaskStatusService taskStatusService;
