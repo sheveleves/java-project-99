@@ -3,13 +3,12 @@ package hexlet.code.controller;
 import hexlet.code.dto.TaskStatusCreateDTO;
 import hexlet.code.dto.TaskStatusDTO;
 import hexlet.code.dto.TaskStatusUpdateDTO;
-import hexlet.code.exception.TaskStatusDeletingException;
-import hexlet.code.model.Task;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.service.TaskStatusService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -60,11 +59,11 @@ public class TaskStatusController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTaskStatus(@PathVariable Long id) {
         TaskStatus taskStatus = taskStatusService.getTaskStatusById(id);
-        List<Task> tasks = taskStatus.getTasks();
-        if (!tasks.isEmpty()) {
-            throw new TaskStatusDeletingException(String.format("Can't delete the status with "
+        try {
+            taskStatusService.deleteTaskStatus(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new DataIntegrityViolationException(String.format("Can't delete the status with "
                     + "ID = %d because this status is used in the task(s)!", id));
         }
-        taskStatusService.deleteTaskStatus(id);
     }
 }
