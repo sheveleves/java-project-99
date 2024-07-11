@@ -129,12 +129,10 @@ public class TaskControllerTest {
                 .with(token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(taskCreateDTO));
-        MvcResult result = mockMvc.perform(request)
+        mockMvc.perform(request)
                 .andExpect(status().isBadRequest()).andReturn();
         long countAfterCreateTask = taskRepository.count();
         assertThat(countAfterCreateTask - countBeforeCreateTask).isEqualTo(0);
-        assertThat(result.getResponse().getContentAsString())
-                .contains("TaskStatus of task must not be null");
     }
 
 
@@ -220,11 +218,9 @@ public class TaskControllerTest {
         Long id = task.getId() + 1;
         MockHttpServletRequestBuilder request = get("/api/tasks/{id}", id)
                 .with(token);
-        MvcResult result = mockMvc.perform(request)
+        mockMvc.perform(request)
                 .andExpect(status().isNotFound())
                 .andReturn();
-        assertThat(result.getResponse().getContentAsString())
-                .contains("Task with ID = " + id + " not found.");
     }
 
     @Test

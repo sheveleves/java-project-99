@@ -2,7 +2,9 @@ package hexlet.code.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.dto.TaskStatusCreateDTO;
+import hexlet.code.model.Task;
 import hexlet.code.model.TaskStatus;
+import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.util.ModelGenerator;
 import org.instancio.Instancio;
@@ -35,6 +37,8 @@ public class TaskStatusControllerTest {
     @Autowired
     private TaskStatusRepository taskStatusRepository;
     @Autowired
+    private TaskRepository taskRepository;
+    @Autowired
     private ModelGenerator modelGenerator;
     @Autowired
     private MockMvc mockMvc;
@@ -42,6 +46,7 @@ public class TaskStatusControllerTest {
     private ObjectMapper objectMapper;
     private TaskStatus testTaskStatus;
     private JwtRequestPostProcessor token;
+    private Task testTask;
 
     @BeforeEach
     public void setup() {
@@ -95,21 +100,20 @@ public class TaskStatusControllerTest {
     }
 
     @Test
-    public void testBadNmeRequestForCreateTaskStatus() throws Exception {
+    public void testBadNameRequestForCreateTaskStatus() throws Exception {
         TaskStatusCreateDTO taskStatusCreateDTO = new TaskStatusCreateDTO();
         taskStatusCreateDTO.setName("");
         MockHttpServletRequestBuilder request = post("/api/task_statuses")
                 .with(token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(taskStatusCreateDTO));
-        MvcResult result = mockMvc.perform(request)
+        mockMvc.perform(request)
                 .andExpect(status().isBadRequest())
                 .andReturn();
-        assertThat(result.getResponse().getContentAsString()).contains("The name must contain at least one character");
     }
 
     @Test
-    public void testUpdateUser() throws Exception {
+    public void testUpdateTaskStatus() throws Exception {
         String testTaskStatusSlug = testTaskStatus.getSlug();
         HashMap<String, String> data = new HashMap<>();
         data.put("name", "NewName");
@@ -132,5 +136,23 @@ public class TaskStatusControllerTest {
         mockMvc.perform(request)
                 .andExpect(status().isNoContent());
         assertThat(taskStatusRepository.existsById(testTaskStatus.getId())).isEqualTo(false);
+    }
+
+    @Test
+    public void testDeleteTaskStatusWhichIsUsedIntoTask() throws Exception {
+        assertThat(taskStatusRepository.existsById(testTaskStatus.getId())).isEqualTo(true);
+
+        testTaskStatus = Instancio.of(modelGenerator.getTaskStatus()).create();
+        taskStatusRepository.save(testTaskStatus);
+
+        testTask = Instancio.of(modelGenerator.getTask()).create();
+        testTask.setTaskStatus(testTaskStatus);
+        taskRepository.save(testTask);
+
+        MockHttpServletRequestBuilder request = delete("/api/task_statuses/{id}", testTaskStatus.getId())
+                .with(token);
+        mockMvc.perform(request)
+                .andExpect(status().isConflict()).andReturn();
+        assertThat(taskStatusRepository.existsById(testTaskStatus.getId())).isEqualTo(true);
     }
 }

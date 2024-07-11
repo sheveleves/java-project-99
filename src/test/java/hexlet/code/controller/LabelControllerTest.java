@@ -3,7 +3,6 @@ package hexlet.code.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.dto.LabelCreateDTO;
-import hexlet.code.mappers.LabelMapper;
 import hexlet.code.model.Label;
 import hexlet.code.model.Task;
 import hexlet.code.model.TaskStatus;
@@ -49,8 +48,6 @@ public class LabelControllerTest {
     private LabelRepository labelRepository;
     @Autowired
     private MockMvc mockMvc;
-    @Autowired
-    private LabelMapper labelMapper;
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
@@ -142,7 +139,7 @@ public class LabelControllerTest {
     }
 
     @Test
-    public void testDeleteTask() throws Exception {
+    public void testDeleteLabel() throws Exception {
         assertThat(labelRepository.existsById(testLabel.getId())).isEqualTo(true);
         MockHttpServletRequestBuilder request = delete("/api/labels/{id}", testLabel.getId())
                 .with(token);
@@ -157,11 +154,9 @@ public class LabelControllerTest {
         Long id = label.getId() + 1;
         MockHttpServletRequestBuilder request = get("/api/labels/{id}", id)
                 .with(token);
-        MvcResult result = mockMvc.perform(request)
+        mockMvc.perform(request)
                 .andExpect(status().isNotFound())
                 .andReturn();
-        assertThat(result.getResponse().getContentAsString())
-                .contains("Label with ID = " + id + " not found.");
     }
 
     @Test

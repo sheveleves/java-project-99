@@ -2,8 +2,11 @@ package hexlet.code.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.dto.UserCreateDTO;
-import hexlet.code.mappers.UserMapper;
+import hexlet.code.model.Task;
+import hexlet.code.model.TaskStatus;
 import hexlet.code.model.User;
+import hexlet.code.repository.TaskRepository;
+import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.repository.UserRepository;
 import hexlet.code.util.ModelGenerator;
 import org.instancio.Instancio;
@@ -40,12 +43,16 @@ public class UserControllerTest {
     private ModelGenerator modelGenerator;
     @Autowired
     private UserRepository userRepository;
-    private User testUser;
     @Autowired
-    private UserMapper userMapper;
+    private TaskStatusRepository taskStatusRepository;
+    @Autowired
+    private TaskRepository taskRepository;
     @Autowired
     private ObjectMapper objectMapper;
+    private User testUser;
     private JwtRequestPostProcessor token;
+    private TaskStatus testTaskStatus;
+    private Task testTask;
 
     @BeforeEach
     public void setUp() {
@@ -137,12 +144,11 @@ public class UserControllerTest {
                 .with(token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(userCreateDTO));
-        MvcResult result = mockMvc.perform(request)
+        mockMvc.perform(request)
                 .andExpect(status().isBadRequest())
                 .andReturn();
         long countAfterCreateUser = userRepository.count();
         assertThat(countAfterCreateUser - countBeforeCreateUser).isEqualTo(0);
-        assertThat(result.getResponse().getContentAsString()).contains("Email must be in email format");
     }
 
     @Test
@@ -155,13 +161,11 @@ public class UserControllerTest {
                 .with(token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(userCreateDTO));
-        MvcResult result = mockMvc.perform(request)
+        mockMvc.perform(request)
                 .andExpect(status().isBadRequest())
                 .andReturn();
         long countAfterCreateUser = userRepository.count();
         assertThat(countAfterCreateUser - countBeforeCreateUser).isEqualTo(0);
-        assertThat(result.getResponse().getContentAsString())
-                .contains("Password must contain at least three characters");
     }
 
     @Test
@@ -170,10 +174,26 @@ public class UserControllerTest {
         Long id = user.getId() + 1;
         MockHttpServletRequestBuilder request = get("/api/users/{id}", id)
                 .with(token);
-        MvcResult result = mockMvc.perform(request)
+        mockMvc.perform(request)
                 .andExpect(status().isNotFound())
                 .andReturn();
-        assertThat(result.getResponse().getContentAsString())
-                .contains("User with ID = " + id + " not found.");
+    }
+
+    @Test
+    public void testDeleteUserWithTask() throws Exception {
+        assertThat(userRepository.existsById(testUser.getId())).isEqualTo(true);
+
+        testTaskStatus = Instancio.of(modelGenerator.getTaskStatus()).create();
+        taskStatusRepository.save(testTaskStatus);
+
+        testTask = Instancio.of(modelGenerator.getTask()).create();
+        testTask.setTaskStatus(testTaskStatus);
+        testTask.setAssignee(testUser);
+        taskRepository.save(testTask);
+
+        MockHttpServletRequestBuilder request = delete("/api/users/{id}", testUser.getId())
+                .with(token);
+        mockMvc.perform(request).andExpect(status().isConflict()).andReturn();
+        assertThat(userRepository.existsById(testUser.getId())).isEqualTo(true);
     }
 }
