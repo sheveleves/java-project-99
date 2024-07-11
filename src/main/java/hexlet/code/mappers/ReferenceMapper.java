@@ -14,7 +14,9 @@ import org.mapstruct.Named;
 import org.mapstruct.TargetType;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -56,10 +58,22 @@ public abstract class ReferenceMapper {
         if (taskLabelIds == null) {
             return null;
         }
-        return taskLabelIds.stream()
-                .map(id -> labelRepository.findById(id)
-                        .orElseThrow(() -> new ResourceNotFoundException("Label with Id = " + id + " not found.")))
+        Set<Label> labelSet = labelRepository.findByIdIn(taskLabelIds);
+        Set<Long> labeldIds = labelSet.stream()
+                .map(Label::getId)
                 .collect(Collectors.toSet());
+        List<Long> noPresentInDatabase = new ArrayList<>();
+        taskLabelIds.forEach(l -> {
+            if (!labeldIds.contains(l)) {
+                noPresentInDatabase.add(l);
+            }
+        });
+
+        if (!noPresentInDatabase.isEmpty()) {
+            throw new ResourceNotFoundException(String.format("Label(s) with Id(s) = %s"
+                    + " not found. Task not created!", noPresentInDatabase));
+        }
+        return labelSet;
     }
 
 
