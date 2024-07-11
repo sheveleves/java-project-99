@@ -174,14 +174,10 @@ public class LabelControllerTest {
         dataTask.setTaskStatus(dataTaskStatus);
         taskRepository.save(dataTask);
 
-        MockHttpServletRequestBuilder request = delete("/api/labels/{id}", testLabel.getId())
+        Long id = testLabel.getId();
+        MockHttpServletRequestBuilder request = delete("/api/labels/{id}", id)
                 .with(token);
-        MvcResult result = mockMvc.perform(request)
-                .andExpect(status().isConflict()).andReturn();
-        assertThat(result.getResponse().getContentAsString())
-                .contains("Can't delete the label with ID = " + testLabel.getId()
-                + " because this label is used in the task(s)!");
+        mockMvc.perform(request).andExpect(status().isConflict()).andReturn();
+        assertThat(labelRepository.findById(id).isPresent()).isTrue();
     }
-
-
 }

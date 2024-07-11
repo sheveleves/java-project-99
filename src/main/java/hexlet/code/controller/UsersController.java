@@ -4,13 +4,11 @@ package hexlet.code.controller;
 import hexlet.code.dto.UserCreateDTO;
 import hexlet.code.dto.UserDTO;
 import hexlet.code.dto.UserUpdateDTO;
-import hexlet.code.model.User;
 import hexlet.code.service.UserService;
 import hexlet.code.utils.UserUtils;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -63,12 +61,6 @@ public class UsersController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("@userUtils.isUserTheSameFromAuthentication(#id)")
     public void deleteUser(@PathVariable Long id) {
-        User user = userService.getUserById(id);
-        try {
-            userService.deleteUser(id);
-        } catch (DataIntegrityViolationException e) {
-            throw new DataIntegrityViolationException(String.format("Can't delete the user with "
-                    + "ID = %d because user has the task(s)!", id));
-        }
+        userService.deleteUser(id);
     }
 }

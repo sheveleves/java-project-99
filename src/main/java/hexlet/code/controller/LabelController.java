@@ -3,12 +3,10 @@ package hexlet.code.controller;
 import hexlet.code.dto.LabelCreateDTO;
 import hexlet.code.dto.LabelDTO;
 import hexlet.code.dto.LabelUpdateDTO;
-import hexlet.code.model.Label;
 import hexlet.code.service.LabelService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -58,12 +56,6 @@ public class LabelController {
     @DeleteMapping(path = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteLabel(@PathVariable Long id) {
-        Label label = labelService.getLabelById(id);
-        try {
-            labelService.deleteLabel((id));
-        } catch (DataIntegrityViolationException e) {
-            throw new DataIntegrityViolationException(String.format("Can't delete the label with "
-                    + "ID = %d because this label is used in the task(s)!", id));
-        }
+        labelService.deleteLabel((id));
     }
 }
