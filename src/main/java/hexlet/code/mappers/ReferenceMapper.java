@@ -1,6 +1,5 @@
 package hexlet.code.mappers;
 
-import hexlet.code.exception.NullTaskStatusException;
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.model.BaseEntity;
 import hexlet.code.model.Label;
@@ -45,9 +44,9 @@ public abstract class ReferenceMapper {
     }
 
     @Named("statusToTaskStatus")
-    public TaskStatus statusToTaskStatus(String status) {
+    public TaskStatus statusToTaskStatus(String status) throws Exception {
         if (status == null) {
-            throw new NullTaskStatusException("It's forbidden to create or update a task without a status!");
+            throw new Exception("It's forbidden to create or update a task without a status!");
         }
         return taskStatusRepository.findBySlug(status)
                 .orElseThrow(() -> new ResourceNotFoundException("Task status with slug = " + status + " not found."));

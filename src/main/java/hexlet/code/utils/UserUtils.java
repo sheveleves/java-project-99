@@ -22,6 +22,7 @@ public class UserUtils {
     }
 
     public boolean isUserTheSameFromAuthentication(long id) {
-        return getCurrentUser().getId() == id;
+        User currentUser = getCurrentUser();
+        return currentUser != null && currentUser.getId() == id;
     }
 }

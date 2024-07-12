@@ -1,6 +1,5 @@
 package hexlet.code.handler;
 
-import hexlet.code.exception.NullTaskStatusException;
 import hexlet.code.exception.ResourceNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
@@ -45,8 +44,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return errorResponse;
     }
 
-    @ExceptionHandler(NullTaskStatusException.class)
-    public ResponseEntity<String> handleResourceNotFoundException(NullTaskStatusException ex) {
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleResourceNotFoundException(Exception ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 
