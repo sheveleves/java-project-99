@@ -18,7 +18,10 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
@@ -44,12 +47,17 @@ public class TaskStatusControllerTest {
     private MockMvc mockMvc;
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private WebApplicationContext wac;
     private TaskStatus testTaskStatus;
     private JwtRequestPostProcessor token;
     private Task testTask;
 
     @BeforeEach
     public void setup() {
+        mockMvc = MockMvcBuilders.webAppContextSetup(wac)
+                .defaultResponseCharacterEncoding(StandardCharsets.UTF_8)
+                .build();
         testTaskStatus = Instancio.of(modelGenerator.getTaskStatus()).create();
         token = jwt().jwt(builder -> builder.subject("hexlet@example.com"));
         taskStatusRepository.save(testTaskStatus);

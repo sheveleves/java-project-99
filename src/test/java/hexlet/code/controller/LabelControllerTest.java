@@ -23,7 +23,10 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -54,7 +57,8 @@ public class LabelControllerTest {
     private TaskRepository taskRepository;
     @Autowired
     private TaskStatusRepository taskStatusRepository;
-
+    @Autowired
+    private WebApplicationContext wac;
     private User testUser;
     private SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor token;
     private Label testLabel;
@@ -62,6 +66,9 @@ public class LabelControllerTest {
 
     @BeforeEach
     public void setUp() throws JsonProcessingException {
+        mockMvc = MockMvcBuilders.webAppContextSetup(wac)
+                .defaultResponseCharacterEncoding(StandardCharsets.UTF_8)
+                .build();
         testUser = Instancio.of(modelGenerator.getUserModel()).create();
         userRepository.save(testUser);
         token = jwt().jwt(builder -> builder.subject(testUser.getEmail()));

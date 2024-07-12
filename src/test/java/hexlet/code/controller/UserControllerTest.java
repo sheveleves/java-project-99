@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -31,7 +32,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 @SpringBootTest
@@ -49,6 +53,8 @@ public class UserControllerTest {
     private TaskRepository taskRepository;
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private WebApplicationContext wac;
     private User testUser;
     private JwtRequestPostProcessor token;
     private TaskStatus testTaskStatus;
@@ -56,6 +62,10 @@ public class UserControllerTest {
 
     @BeforeEach
     public void setUp() {
+        mockMvc = MockMvcBuilders.webAppContextSetup(wac)
+                .defaultResponseCharacterEncoding(StandardCharsets.UTF_8)
+                .apply(springSecurity())
+                .build();
         testUser = Instancio.of(modelGenerator.getUserModel()).create();
         token = jwt().jwt(builder -> builder.subject(testUser.getEmail()));
         userRepository.save(testUser);
