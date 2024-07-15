@@ -26,3 +26,9 @@ src="https://img.shields.io/badge/Spring_data_jpa-6DB33F?style=for-the-badge&log
 <img src="https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=fff&style=plastic" alt="Docker Badge" height="20">
 <img src="https://img.shields.io/badge/Sentry-362D59?logo=sentry&logoColor=fff&style=plastic" alt="Sentry Badge" height="20">
 <img src="https://img.shields.io/badge/Swagger-85EA2D?logo=swagger&logoColor=000&style=plastic" alt="Swagger Badge" height="20">
+
+### Development
+*To deploy the application locally use the command*
+```bash
+make run
+```
