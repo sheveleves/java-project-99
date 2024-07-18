@@ -26,10 +26,6 @@ public class CustomUserDetailsService implements UserDetailsManager {
 
     @Override
     public void createUser(UserDetails userData) {
-        if (userExists(userData.getUsername())) {
-            log.info(String.format("Attempt to create a user with the same email - %s", userData.getUsername()));
-            return;
-        }
         User user = new User();
         user.setEmail(userData.getUsername());
         user.setPasswordDigest(passwordEncoder.encode(userData.getPassword()));
