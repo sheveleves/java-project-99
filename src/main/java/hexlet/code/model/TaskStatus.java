@@ -18,7 +18,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "taskStatus")
@@ -47,7 +47,7 @@ public class TaskStatus {
     private Instant createdAt;
 
     @OneToMany(mappedBy = "taskStatus")
-    private List<Task> tasks;
+    private Set<Task> tasks;
 
     public TaskStatus(String name, String slug) {
         this.name = name;
